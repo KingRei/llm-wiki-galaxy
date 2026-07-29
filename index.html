@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#08111f" />
+  <title>Compounding Wiki — Obsidian AI Second Brain</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">∞</div>
+        <div>
+          <div class="brand-title">Compounding Wiki</div>
+          <div class="brand-subtitle">Obsidian × Persistent LLM Wiki</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="openCommand" class="ghost-btn" title="Command Palette">⌘ K</button>
+        <button id="connectVault" class="primary-btn">連接 Obsidian Vault</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="sidebar left-sidebar">
+        <section class="panel source-panel">
+          <div class="panel-title-row">
+            <h2>Knowledge layers</h2>
+            <span id="vaultStatus" class="status-pill">Demo</span>
+          </div>
+          <nav class="layer-nav">
+            <button class="layer active" data-layer="all"><span>✦</span><b>Galaxy</b><em id="countAll">0</em></button>
+            <button class="layer" data-layer="wiki"><span>◫</span><b>Wiki</b><em id="countWiki">0</em></button>
+            <button class="layer" data-layer="source"><span>▤</span><b>Raw sources</b><em id="countSource">0</em></button>
+            <button class="layer" data-layer="question"><span>?</span><b>Questions</b><em id="countQuestion">0</em></button>
+            <button class="layer" data-layer="contradiction"><span>⚡</span><b>Contradictions</b><em id="countContradiction">0</em></button>
+          </nav>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title-row"><h2>Views</h2></div>
+          <div class="view-switcher">
+            <button class="view-btn active" data-view="galaxy">Galaxy</button>
+            <button class="view-btn" data-view="timeline">Timeline</button>
+            <button class="view-btn" data-view="health">Health</button>
+          </div>
+        </section>
+
+        <section class="panel grow">
+          <div class="panel-title-row"><h2>Recent activity</h2></div>
+          <div id="activityList" class="activity-list"></div>
+        </section>
+
+        <button id="newPage" class="new-page-btn">＋ 建立 Wiki 頁面</button>
+      </aside>
+
+      <section class="stage">
+        <div class="stage-toolbar">
+          <div class="search-wrap">
+            <span>⌕</span>
+            <input id="searchInput" type="search" placeholder="搜尋概念、人物、專案或來源…" />
+            <kbd>/</kbd>
+          </div>
+          <div class="toolbar-actions">
+            <button id="focusMode" class="icon-btn" title="Focus selected">◎</button>
+            <button id="resetView" class="icon-btn" title="Reset view">↺</button>
+            <button id="runLint" class="icon-btn accent" title="Lint wiki">✦ Lint</button>
+          </div>
+        </div>
+
+        <div id="galaxyView" class="view-container active">
+          <canvas id="galaxyCanvas"></canvas>
+          <div class="galaxy-label">GALAXY VIEW</div>
+          <div class="legend">
+            <span><i class="dot wiki"></i>Wiki</span>
+            <span><i class="dot source"></i>Source</span>
+            <span><i class="dot question"></i>Question</span>
+            <span><i class="dot contradiction"></i>Contradiction</span>
+          </div>
+          <div class="zoom-hint">拖曳移動 · 滾輪縮放 · 點擊節點閱讀</div>
+        </div>
+
+        <div id="timelineView" class="view-container">
+          <div class="empty-view">
+            <div class="eyebrow">COMPOUNDING OVER TIME</div>
+            <h2>知識不是被搜尋，而是被持續編譯。</h2>
+            <div id="timelineList" class="timeline-list"></div>
+          </div>
+        </div>
+
+        <div id="healthView" class="view-container">
+          <div class="health-grid">
+            <article class="metric-card"><span>Wiki pages</span><strong id="metricPages">0</strong><small>可持續維護的知識頁</small></article>
+            <article class="metric-card"><span>Connections</span><strong id="metricLinks">0</strong><small>已建立的雙向關聯</small></article>
+            <article class="metric-card warning"><span>Orphans</span><strong id="metricOrphans">0</strong><small>缺少連結的孤立頁面</small></article>
+            <article class="metric-card danger"><span>Contradictions</span><strong id="metricContradictions">0</strong><small>需要人工判讀的衝突</small></article>
+          </div>
+          <div class="health-detail panel-like">
+            <div>
+              <div class="eyebrow">WIKI LINTER</div>
+              <h2>讓知識庫愈用愈好，而不是愈用愈亂。</h2>
+            </div>
+            <div id="lintResults" class="lint-results"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="sidebar right-sidebar">
+        <div id="inspectorEmpty" class="inspector-empty">
+          <div class="orb">✦</div>
+          <h2>選擇一個節點</h2>
+          <p>閱讀頁面、查看來源、追蹤反向連結，或讓 Agent 把新洞見寫回 Obsidian。</p>
+        </div>
+
+        <div id="inspector" class="inspector hidden">
+          <div class="inspector-head">
+            <div>
+              <span id="nodeType" class="node-type">Wiki</span>
+              <h1 id="nodeTitle"></h1>
+            </div>
+            <button id="closeInspector" class="icon-btn">×</button>
+          </div>
+          <div id="nodeMeta" class="node-meta"></div>
+          <div id="nodeBody" class="node-body"></div>
+          <section class="inspector-section">
+            <h3>Connections</h3>
+            <div id="nodeLinks" class="chip-list"></div>
+          </section>
+          <section class="inspector-section">
+            <h3>Agent actions</h3>
+            <div class="agent-actions">
+              <button data-agent="synthesize">綜合成新頁面</button>
+              <button data-agent="expand">找缺口與下一步</button>
+              <button data-agent="cite">產生有來源的摘要</button>
+            </div>
+          </section>
+          <button id="openInObsidian" class="obsidian-btn">在 Obsidian 開啟</button>
+        </div>
+
+        <div class="ask-box">
+          <div class="ask-head"><span class="agent-dot"></span> Wiki Agent</div>
+          <textarea id="agentPrompt" placeholder="問：這些頁面之間有什麼隱藏關聯？"></textarea>
+          <div class="ask-footer">
+            <button id="saveAnswerToggle" class="toggle active" aria-pressed="true"><i></i>存回 Wiki</button>
+            <button id="askAgent" class="send-btn">送出 ↑</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <dialog id="commandDialog" class="command-dialog">
+    <div class="command-search"><span>⌘</span><input id="commandInput" placeholder="輸入指令…" /></div>
+    <div class="command-list">
+      <button data-command="connect"><span>連接 Obsidian Vault</span><kbd>V</kbd></button>
+      <button data-command="new"><span>建立 Wiki 頁面</span><kbd>N</kbd></button>
+      <button data-command="lint"><span>執行 Wiki Lint</span><kbd>L</kbd></button>
+      <button data-command="reset"><span>重設 Galaxy 視角</span><kbd>R</kbd></button>
+    </div>
+  </dialog>
+
+  <dialog id="pageDialog" class="page-dialog">
+    <form method="dialog" id="pageForm">
+      <div class="dialog-head"><h2>建立 Wiki 頁面</h2><button value="cancel">×</button></div>
+      <label>標題<input id="pageTitleInput" required placeholder="例如：Persistent LLM Wiki" /></label>
+      <label>類型<select id="pageTypeInput"><option value="wiki">Wiki</option><option value="source">Raw source</option><option value="question">Question</option></select></label>
+      <label>內容<textarea id="pageBodyInput" placeholder="支援 [[雙向連結]] 與 Markdown"></textarea></label>
+      <div class="dialog-actions"><button value="cancel" class="ghost-btn">取消</button><button id="createPageSubmit" value="default" class="primary-btn">建立並寫入</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
