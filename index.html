@@ -13,8 +13,8 @@
       <div class="brand">
         <div class="brand-mark">∞</div>
         <div>
-          <div class="brand-title">Compounding Wiki</div>
-          <div class="brand-subtitle">Obsidian × Persistent LLM Wiki</div>
+          <div class="brand-title">Adan Second Brain</div>
+          <div class="brand-subtitle">Knowledge Memory × Agent Execution OS</div>
         </div>
       </div>
       <div class="top-actions">
@@ -41,8 +41,9 @@
 
         <section class="panel">
           <div class="panel-title-row"><h2>Views</h2></div>
-          <div class="view-switcher">
-            <button class="view-btn active" data-view="galaxy">Galaxy</button>
+          <div class="view-switcher four">
+            <button class="view-btn active" data-view="galaxy">Knowledge</button>
+            <button class="view-btn" data-view="agents">Execution</button>
             <button class="view-btn" data-view="timeline">Timeline</button>
             <button class="view-btn" data-view="health">Health</button>
           </div>
@@ -72,7 +73,7 @@
 
         <div id="galaxyView" class="view-container active">
           <canvas id="galaxyCanvas"></canvas>
-          <div class="galaxy-label">GALAXY VIEW</div>
+          <div class="galaxy-label">KNOWLEDGE MEMORY · WHAT ADAN KNOWS</div>
           <div class="legend">
             <span><i class="dot wiki"></i>Wiki</span>
             <span><i class="dot source"></i>Source</span>
@@ -82,6 +83,47 @@
           <div class="zoom-hint">拖曳移動 · 滾輪縮放 · 點擊節點閱讀</div>
         </div>
 
+
+        <div id="agentsView" class="view-container">
+          <div class="agent-os">
+            <header class="agent-os-head">
+              <div>
+                <div class="eyebrow">EXECUTION LAYER · WHAT ADAN DOES</div>
+                <h2>一個總指揮，七個專責工作區。</h2>
+                <p>Chief of Staff 先判斷意圖，再把任務交給最適合的 Agent；所有重要結果寫回 Obsidian Wiki。</p>
+              </div>
+              <div class="agent-summary">
+                <span><b id="agentActiveCount">3</b> Active</span>
+                <span><b id="agentQueueCount">4</b> Queue</span>
+                <span><b id="agentReviewCount">2</b> Review</span>
+              </div>
+            </header>
+
+            <section class="agent-map">
+              <button class="agent-core active" data-agent-zone="chief">
+                <span class="core-pulse"></span>
+                <strong>Chief of Staff</strong>
+                <small>理解目標 · 拆解任務 · 協調 Agent</small>
+              </button>
+              <div id="agentZones" class="agent-zones"></div>
+            </section>
+
+            <section class="execution-board">
+              <div class="board-column">
+                <div class="board-title"><span>NOW</span><b>正在執行</b></div>
+                <div id="activeTasks" class="task-list"></div>
+              </div>
+              <div class="board-column">
+                <div class="board-title"><span>NEXT</span><b>等待排程</b></div>
+                <div id="queuedTasks" class="task-list"></div>
+              </div>
+              <div class="board-column">
+                <div class="board-title"><span>REVIEW</span><b>等待你確認</b></div>
+                <div id="reviewTasks" class="task-list"></div>
+              </div>
+            </section>
+          </div>
+        </div>
         <div id="timelineView" class="view-container">
           <div class="empty-view">
             <div class="eyebrow">COMPOUNDING OVER TIME</div>
@@ -140,8 +182,8 @@
         </div>
 
         <div class="ask-box">
-          <div class="ask-head"><span class="agent-dot"></span> Wiki Agent</div>
-          <textarea id="agentPrompt" placeholder="問：這些頁面之間有什麼隱藏關聯？"></textarea>
+          <div class="ask-head"><span class="agent-dot"></span> Adan Chief of Staff <button id="agentRouteBadge" class="route-badge">Auto route</button></div>
+          <textarea id="agentPrompt" placeholder="交代任務：研究、工程、投資、專案或知識整理…"></textarea>
           <div class="ask-footer">
             <button id="saveAnswerToggle" class="toggle active" aria-pressed="true"><i></i>存回 Wiki</button>
             <button id="askAgent" class="send-btn">送出 ↑</button>
@@ -156,6 +198,7 @@
     <div class="command-list">
       <button data-command="connect"><span>連接 Obsidian Vault</span><kbd>V</kbd></button>
       <button data-command="new"><span>建立 Wiki 頁面</span><kbd>N</kbd></button>
+      <button data-command="agents"><span>開啟 Agent Execution OS</span><kbd>A</kbd></button>
       <button data-command="lint"><span>執行 Wiki Lint</span><kbd>L</kbd></button>
       <button data-command="reset"><span>重設 Galaxy 視角</span><kbd>R</kbd></button>
     </div>

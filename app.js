@@ -16,6 +16,34 @@ const demoPages = [
   {id:'agent-question',title:'What changed my thesis?',type:'question',date:'2026-07-18',tags:['reflection'],body:'每次 ingest 後，Agent 應回答：哪些既有結論被強化、削弱或推翻？還缺少什麼證據？',links:['Contradiction Detection','Incremental Ingest','Query to Artifact']}
 ];
 
+
+const agentZones = [
+  {id:'research',name:'Research',icon:'⌕',color:'#43ddff',desc:'論文、文件、網頁、YouTube、GitHub'},
+  {id:'engineering',name:'Engineering',icon:'⌘',color:'#637dff',desc:'程式碼、Benchmark、Bug、環境設定'},
+  {id:'intelligence',name:'Intelligence',icon:'◉',color:'#5af2b6',desc:'公司、人物、產品、競爭與市場情報'},
+  {id:'investment',name:'Investment',icon:'$',color:'#ffca6a',desc:'財報、估值、催化劑、風險與 Thesis'},
+  {id:'projects',name:'Projects',icon:'↗',color:'#ff9f68',desc:'專案狀態、任務、依賴與下一步'},
+  {id:'learning',name:'Learning',icon:'△',color:'#a872ff',desc:'課程、YC、閱讀、技能樹與複習'},
+  {id:'wiki',name:'Wiki Maintainer',icon:'✦',color:'#ff6f91',desc:'Ingest、Cross-link、Lint、Index、Log'}
+];
+const executionTasks = {
+  active:[
+    {title:'整理 ROCm 研究脈絡',agent:'Engineering',desc:'彙整 benchmark、環境問題與核心結論',progress:72,color:'#637dff',meta:'更新 6 個 Wiki 頁面'},
+    {title:'建立 AI Infra 競爭地圖',agent:'Intelligence',desc:'連結 AMD、NVIDIA、OpenAI 與產品節點',progress:48,color:'#5af2b6',meta:'讀取 12 個來源'},
+    {title:'Wiki 健康檢查',agent:'Wiki Maintainer',desc:'找孤兒頁、矛盾與缺少來源的聲明',progress:84,color:'#ff6f91',meta:'發現 3 個待處理項目'}
+  ],
+  queued:[
+    {title:'YC 系統化學習路徑',agent:'Learning',desc:'把影片與筆記編成可追蹤課綱',progress:0,color:'#a872ff',meta:'等待排程'},
+    {title:'投資 Thesis 更新',agent:'Investment',desc:'檢查新財報是否推翻既有假設',progress:0,color:'#ffca6a',meta:'等待新來源'},
+    {title:'專案依賴圖',agent:'Projects',desc:'整理目前工作項目的 blocker 與 owner',progress:0,color:'#ff9f68',meta:'等待確認範圍'},
+    {title:'新增來源 Ingest',agent:'Research',desc:'讀取最新加入 raw/ 的 Markdown',progress:0,color:'#43ddff',meta:'偵測到 2 個新檔案'}
+  ],
+  review:[
+    {title:'合併 FlashAttention 綜合頁',agent:'Wiki Maintainer',desc:'Agent 建議更新 5 個頁面並新增 11 個連結',progress:100,color:'#ff6f91',meta:'需要人工確認 diff'},
+    {title:'調整 MI300X 性能結論',agent:'Engineering',desc:'新數據與舊摘要存在一處衝突',progress:100,color:'#637dff',meta:'需要裁決來源優先級'}
+  ]
+};
+
 const state={pages:[],filtered:[],selected:null,layer:'all',view:'galaxy',vaultHandle:null,handles:new Map(),camera:{x:0,y:0,scale:1},drag:null,hover:null};
 const typeColors={wiki:'#43ddff',source:'#a872ff',question:'#ffca6a',contradiction:'#ff6f91'};
 const $=s=>document.querySelector(s); const $$=s=>[...document.querySelectorAll(s)];
@@ -27,7 +55,7 @@ function wikiLinks(text){return [...text.matchAll(/\[\[([^\]|#]+)(?:#[^\]|]+)?(?
 function stripFrontmatter(text){return text.replace(/^---\n[\s\S]*?\n---\n?/,'').trim()}
 function parseFrontmatter(text){const m=text.match(/^---\n([\s\S]*?)\n---/); const out={}; if(!m)return out; m[1].split('\n').forEach(line=>{const i=line.indexOf(':');if(i>0){let v=line.slice(i+1).trim();if(v.startsWith('['))v=v.slice(1,-1).split(',').map(x=>x.trim().replace(/^['"]|['"]$/g,''));out[line.slice(0,i).trim()]=v}});return out}
 
-function initialize(){state.pages=demoPages.map((p,i)=>({...p,x:0,y:0,vx:0,vy:0,r:p.type==='wiki'?4.4:3.7})); buildGraph(); bind(); updateUI(); requestAnimationFrame(draw)}
+function initialize(){renderAgentOS();state.pages=demoPages.map((p,i)=>({...p,x:0,y:0,vx:0,vy:0,r:p.type==='wiki'?4.4:3.7})); buildGraph(); bind(); updateUI(); requestAnimationFrame(draw)}
 function buildGraph(){
   const cx=0,cy=0;state.pages.forEach((p,i)=>{const a=i*2.39996;const rad=38+Math.sqrt(i)*38;p.x=cx+Math.cos(a)*rad+(Math.random()-.5)*18;p.y=cy+Math.sin(a)*rad+(Math.random()-.5)*18;p.vx=p.vy=0});
   const map=new Map(state.pages.map(p=>[p.title.toLowerCase(),p]));
@@ -75,14 +103,35 @@ async function createPage(){const title=$('#pageTitleInput').value.trim(),type=$
 function openObsidian(){if(!state.selected)return;const vault=state.vaultHandle?.name||'';const file=(state.selected.path||state.selected.title).replace(/\.md$/,'');const uri=`obsidian://open?vault=${encodeURIComponent(vault)}&file=${encodeURIComponent(file)}`;location.href=uri}
 function runLint(){switchView('health');toast('Lint 完成：已檢查孤兒頁、斷鏈、矛盾與引用缺口')}
 function switchView(v){state.view=v;$$('.view-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));$$('.view-container').forEach(el=>el.classList.remove('active'));$('#'+v+'View').classList.add('active')}
-function askAgent(){const q=$('#agentPrompt').value.trim();if(!q)return;const save=$('#saveAnswerToggle').classList.contains('active');const relevant=state.pages.filter(p=>[p.title,p.body].join(' ').toLowerCase().includes(q.toLowerCase().split(/\s+/)[0])).slice(0,3);const names=(relevant.length?relevant:state.pages.slice(0,3)).map(p=>`[[${p.title}]]`).join('、');const answer=`問題：${q}\n\n目前原型會先從 Wiki 索引與連結圖找候選頁面，再將回答寫成可回存的 Markdown artifact。建議優先閱讀 ${names}，並在正式版串接你的 LLM Agent / MCP 來做引用、差異更新與多檔案寫入。`;if(save){$('#pageTitleInput').value=`Exploration — ${q.slice(0,28)}`;$('#pageTypeInput').value='question';$('#pageBodyInput').value=answer;$('#pageDialog').showModal()}else toast('已完成本地端示範推理（正式版需接 LLM API）')}
+function askAgent(){const q=$('#agentPrompt').value.trim();if(!q)return;const routed=routeAgent(q);$('#agentRouteBadge').textContent=routed.name;const save=$('#saveAnswerToggle').classList.contains('active');const relevant=state.pages.filter(p=>[p.title,p.body].join(' ').toLowerCase().includes(q.toLowerCase().split(/\s+/)[0])).slice(0,3);const names=(relevant.length?relevant:state.pages.slice(0,3)).map(p=>`[[${p.title}]]`).join('、');const answer=`執行 Agent：${routed.name}\n\n問題：${q}\n\n目前原型會先從 Wiki 索引與連結圖找候選頁面，再將回答寫成可回存的 Markdown artifact。建議優先閱讀 ${names}，並在正式版串接你的 LLM Agent / MCP 來做引用、差異更新與多檔案寫入。`;toast(`Chief of Staff 已路由給 ${routed.name} Agent`);if(save){$('#pageTitleInput').value=`Exploration — ${q.slice(0,28)}`;$('#pageTypeInput').value='question';$('#pageBodyInput').value=answer;$('#pageDialog').showModal()}else toast('已完成本地端示範推理（正式版需接 LLM API）')}
 
+function renderAgentOS(){
+  const zoneWrap=$('#agentZones');
+  if(zoneWrap) zoneWrap.innerHTML=agentZones.map(z=>`<button class="agent-zone" data-zone="${z.id}" style="--zone-color:${z.color}"><span class="zone-icon">${z.icon}</span><strong>${z.name}</strong><small>${z.desc}</small></button>`).join('');
+  const renderTasks=(id,tasks)=>{const el=$(id);if(!el)return;el.innerHTML=tasks.map(t=>`<article class="task-card" style="--task-color:${t.color}"><div class="task-top"><strong>${t.title}</strong><em>${t.agent}</em></div><p>${t.desc}</p><div class="task-meta">${t.meta}</div>${t.progress?`<div class="progress"><i style="width:${t.progress}%"></i></div>`:''}</article>`).join('')};
+  renderTasks('#activeTasks',executionTasks.active);renderTasks('#queuedTasks',executionTasks.queued);renderTasks('#reviewTasks',executionTasks.review);
+  $$('.agent-zone').forEach(b=>b.onclick=()=>{const z=agentZones.find(x=>x.id===b.dataset.zone);$$('.agent-zone').forEach(x=>x.classList.toggle('active',x===b));$('#agentPrompt').value=`請交給 ${z.name} Agent：`;$('#agentPrompt').focus();$('#agentRouteBadge').textContent=z.name;toast(`已選擇 ${z.name} Agent`)});
+}
+function routeAgent(prompt=''){
+  const q=prompt.toLowerCase();
+  const rules=[
+    ['engineering',['rocm','gpu','code','程式','bug','benchmark','效能','triton','pytorch']],
+    ['investment',['股票','投資','估值','財報','股價','thesis']],
+    ['intelligence',['公司','競爭','市場','人物','情報','產業']],
+    ['projects',['專案','任務','進度','依賴','blocker','下一步']],
+    ['learning',['學習','課程','影片','閱讀','yc','複習']],
+    ['wiki',['wiki','obsidian','整理','lint','連結','ingest','摘要']],
+    ['research',['研究','論文','來源','搜尋','paper','github']]
+  ];
+  const id=(rules.find(([,keys])=>keys.some(k=>q.includes(k)))||['chief'])[0];
+  return agentZones.find(z=>z.id===id)||{id:'chief',name:'Chief of Staff'};
+}
 function bind(){
   addEventListener('resize',resize);$('#connectVault').onclick=connectVault;$('#newPage').onclick=()=>$('#pageDialog').showModal();$('#createPageSubmit').onclick=e=>{e.preventDefault();createPage()};$('#searchInput').oninput=updateUI;$('#searchInput').onkeydown=e=>{if(e.key==='Escape'){e.target.value='';updateUI()}};
   $$('.layer').forEach(b=>b.onclick=()=>{state.layer=b.dataset.layer;$$('.layer').forEach(x=>x.classList.toggle('active',x===b));updateUI()});$$('.view-btn').forEach(b=>b.onclick=()=>switchView(b.dataset.view));$('#runLint').onclick=runLint;$('#closeInspector').onclick=()=>{$('#inspector').classList.add('hidden');$('#inspectorEmpty').classList.remove('hidden');$('.right-sidebar').classList.remove('open');state.selected=null};$('#openInObsidian').onclick=openObsidian;
   $('#resetView').onclick=()=>state.camera={x:0,y:0,scale:1};$('#focusMode').onclick=()=>{if(state.selected){state.camera.x=-state.selected.x;state.camera.y=-state.selected.y;state.camera.scale=2.2}};
   canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);state.drag={x:e.clientX,y:e.clientY,cx:state.camera.x,cy:state.camera.y,moved:false}});canvas.addEventListener('pointermove',e=>{const r=canvas.getBoundingClientRect();state.hover=hitTest(e.clientX-r.left,e.clientY-r.top);canvas.style.cursor=state.hover?'pointer':state.drag?'grabbing':'grab';if(state.drag){const dx=e.clientX-state.drag.x,dy=e.clientY-state.drag.y;if(Math.abs(dx)+Math.abs(dy)>3)state.drag.moved=true;state.camera.x=state.drag.cx+dx/state.camera.scale;state.camera.y=state.drag.cy+dy/state.camera.scale}});canvas.addEventListener('pointerup',e=>{if(state.drag&&!state.drag.moved){const r=canvas.getBoundingClientRect(),p=hitTest(e.clientX-r.left,e.clientY-r.top);if(p)selectPage(p)}state.drag=null});canvas.addEventListener('wheel',e=>{e.preventDefault();state.camera.scale=Math.max(.35,Math.min(4,state.camera.scale*Math.exp(-e.deltaY*.001)))},{passive:false});
-  $('#openCommand').onclick=()=>{$('#commandDialog').showModal();setTimeout(()=>$('#commandInput').focus(),20)};addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#commandDialog').showModal()}if(e.key==='/'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='TEXTAREA'){e.preventDefault();$('#searchInput').focus()}});$$('[data-command]').forEach(b=>b.onclick=()=>{const c=b.dataset.command;$('#commandDialog').close();if(c==='connect')connectVault();if(c==='new')$('#pageDialog').showModal();if(c==='lint')runLint();if(c==='reset')state.camera={x:0,y:0,scale:1}});
+  $('#openCommand').onclick=()=>{$('#commandDialog').showModal();setTimeout(()=>$('#commandInput').focus(),20)};addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#commandDialog').showModal()}if(e.key==='/'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='TEXTAREA'){e.preventDefault();$('#searchInput').focus()}});$$('[data-command]').forEach(b=>b.onclick=()=>{const c=b.dataset.command;$('#commandDialog').close();if(c==='connect')connectVault();if(c==='new')$('#pageDialog').showModal();if(c==='agents')switchView('agents');if(c==='lint')runLint();if(c==='reset')state.camera={x:0,y:0,scale:1}});
   $('#saveAnswerToggle').onclick=e=>e.currentTarget.classList.toggle('active');$('#askAgent').onclick=askAgent;$$('[data-agent]').forEach(b=>b.onclick=()=>{if(!state.selected)return;const prompts={synthesize:`綜合 [[${state.selected.title}]] 與所有相鄰頁面，形成一份可長期維護的 synthesis。`,expand:`檢查 [[${state.selected.title}]] 的證據缺口、孤立概念與下一個研究問題。`,cite:`根據 [[${state.selected.title}]] 的 raw sources 產生逐項可追溯摘要。`};$('#agentPrompt').value=prompts[b.dataset.agent];askAgent()});
 }
 initialize();

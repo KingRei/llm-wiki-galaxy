@@ -72,3 +72,17 @@ Do not auto-resolve substantive contradictions without evidence or user review.
 - Keep citations close to claims.
 - Preserve uncertainty.
 - Optimize for future comprehension, not merely current chat completion.
+
+## Execution Layer routing
+
+Adan uses a Chief of Staff orchestrator and seven expandable workspaces:
+
+1. Research — sources, papers, web pages, repositories.
+2. Engineering — code, bugs, benchmarks, environments.
+3. Intelligence — companies, people, products, competitors.
+4. Investment — filings, valuation, catalysts, risks, thesis.
+5. Projects — status, dependencies, owners, next actions.
+6. Learning — courses, videos, reading paths, review plans.
+7. Wiki Maintainer — ingest, cross-links, lint, index, log.
+
+Every task must record: selected agent, inputs, planned writes, source provenance, execution status, and whether human review is required. Destructive changes, external actions, and multi-file wiki rewrites require explicit approval.

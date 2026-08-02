@@ -76,3 +76,14 @@ Agent sidecar (Python or Node)
 - File System Access API 主要支援桌面版 Chromium。
 - Safari / iOS 無法提供同等的 Vault 資料夾讀寫體驗。
 - 跨裝置正式版可改用 Obsidian Local REST API plugin、桌面 companion app，或自架同步服務。
+
+## Execution Layer（Adan Agent OS）
+
+新版加入 Knowledge / Execution 雙層模式：
+
+- **Knowledge Memory**：Obsidian Wiki、raw sources、questions、contradictions 與 Galaxy。
+- **Execution OS**：Chief of Staff 自動判斷意圖，路由到專責 Agent，並呈現 Now / Next / Review 工作佇列。
+
+預設分區：Research、Engineering、Intelligence、Investment、Projects、Learning、Wiki Maintainer。這些分區可直接在 `app.js` 的 `agentZones` 陣列增刪，不需改動核心圖譜邏輯。
+
+重要輸出仍遵循「先產生 diff、人工確認、再寫回 Obsidian」原則。
