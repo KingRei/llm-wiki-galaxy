@@ -4,7 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#08111f" />
-  <title>Compounding Wiki — Obsidian AI Second Brain</title>
+  <title data-i18n="doc.title">Compounding Wiki — Obsidian AI Second Brain</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="mask-icon" href="assets/favicon.svg" color="#43ddff" />
+  <link rel="apple-touch-icon" href="assets/favicon.svg" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -14,12 +17,16 @@
         <div class="brand-mark">∞</div>
         <div>
           <div class="brand-title">Adan Second Brain</div>
-          <div class="brand-subtitle">Knowledge Memory × Agent Execution OS</div>
+          <div class="brand-subtitle" data-i18n="brand.subtitle">Knowledge Memory × Agent Execution OS</div>
         </div>
       </div>
       <div class="top-actions">
-        <button id="openCommand" class="ghost-btn" title="Command Palette">⌘ K</button>
-        <button id="connectVault" class="primary-btn">連接 Obsidian Vault</button>
+        <div id="langSwitch" class="lang-switch" role="group" aria-label="Language">
+          <button data-lang="zh" lang="zh-Hant">繁中</button>
+          <button data-lang="en" lang="en">EN</button>
+        </div>
+        <button id="openCommand" class="ghost-btn" data-i18n-title="tip.command" title="Command Palette">⌘ K</button>
+        <button id="connectVault" class="primary-btn" data-i18n="btn.connect">連接 Obsidian Vault</button>
       </div>
     </header>
 
@@ -27,60 +34,60 @@
       <aside class="sidebar left-sidebar">
         <section class="panel source-panel">
           <div class="panel-title-row">
-            <h2>Knowledge layers</h2>
-            <span id="vaultStatus" class="status-pill">Demo</span>
+            <h2 data-i18n="panel.layers">Knowledge layers</h2>
+            <span id="vaultStatus" class="status-pill" data-i18n="status.demo">Demo</span>
           </div>
           <nav class="layer-nav">
-            <button class="layer active" data-layer="all"><span>✦</span><b>Galaxy</b><em id="countAll">0</em></button>
-            <button class="layer" data-layer="wiki"><span>◫</span><b>Wiki</b><em id="countWiki">0</em></button>
-            <button class="layer" data-layer="source"><span>▤</span><b>Raw sources</b><em id="countSource">0</em></button>
-            <button class="layer" data-layer="question"><span>?</span><b>Questions</b><em id="countQuestion">0</em></button>
-            <button class="layer" data-layer="contradiction"><span>⚡</span><b>Contradictions</b><em id="countContradiction">0</em></button>
+            <button class="layer active" data-layer="all"><span>✦</span><b data-i18n="layer.all">Galaxy</b><em id="countAll">0</em></button>
+            <button class="layer" data-layer="wiki"><span>◫</span><b data-i18n="layer.wiki">Wiki</b><em id="countWiki">0</em></button>
+            <button class="layer" data-layer="source"><span>▤</span><b data-i18n="layer.source">Raw sources</b><em id="countSource">0</em></button>
+            <button class="layer" data-layer="question"><span>?</span><b data-i18n="layer.question">Questions</b><em id="countQuestion">0</em></button>
+            <button class="layer" data-layer="contradiction"><span>⚡</span><b data-i18n="layer.contradiction">Contradictions</b><em id="countContradiction">0</em></button>
           </nav>
         </section>
 
         <section class="panel">
-          <div class="panel-title-row"><h2>Views</h2></div>
+          <div class="panel-title-row"><h2 data-i18n="panel.views">Views</h2></div>
           <div class="view-switcher four">
-            <button class="view-btn active" data-view="galaxy">Knowledge</button>
-            <button class="view-btn" data-view="agents">Execution</button>
-            <button class="view-btn" data-view="timeline">Timeline</button>
-            <button class="view-btn" data-view="health">Health</button>
+            <button class="view-btn active" data-view="galaxy" data-i18n="view.knowledge">Knowledge</button>
+            <button class="view-btn" data-view="agents" data-i18n="view.execution">Execution</button>
+            <button class="view-btn" data-view="timeline" data-i18n="view.timeline">Timeline</button>
+            <button class="view-btn" data-view="health" data-i18n="view.health">Health</button>
           </div>
         </section>
 
         <section class="panel grow">
-          <div class="panel-title-row"><h2>Recent activity</h2></div>
+          <div class="panel-title-row"><h2 data-i18n="panel.activity">Recent activity</h2></div>
           <div id="activityList" class="activity-list"></div>
         </section>
 
-        <button id="newPage" class="new-page-btn">＋ 建立 Wiki 頁面</button>
+        <button id="newPage" class="new-page-btn" data-i18n="btn.newpage">＋ 建立 Wiki 頁面</button>
       </aside>
 
       <section class="stage">
         <div class="stage-toolbar">
           <div class="search-wrap">
             <span>⌕</span>
-            <input id="searchInput" type="search" placeholder="搜尋概念、人物、專案或來源…" />
+            <input id="searchInput" type="search" data-i18n-placeholder="search.placeholder" placeholder="搜尋概念、人物、專案或來源…" />
             <kbd>/</kbd>
           </div>
           <div class="toolbar-actions">
-            <button id="focusMode" class="icon-btn" title="Focus selected">◎</button>
-            <button id="resetView" class="icon-btn" title="Reset view">↺</button>
-            <button id="runLint" class="icon-btn accent" title="Lint wiki">✦ Lint</button>
+            <button id="focusMode" class="icon-btn" data-i18n-title="tip.focus" title="Focus selected">◎</button>
+            <button id="resetView" class="icon-btn" data-i18n-title="tip.reset" title="Reset view">↺</button>
+            <button id="runLint" class="icon-btn accent" data-i18n-title="tip.lint" title="Lint wiki">✦ Lint</button>
           </div>
         </div>
 
         <div id="galaxyView" class="view-container active">
           <canvas id="galaxyCanvas"></canvas>
-          <div class="galaxy-label">KNOWLEDGE MEMORY · WHAT ADAN KNOWS</div>
+          <div class="galaxy-label" data-i18n="galaxy.label">KNOWLEDGE MEMORY · WHAT ADAN KNOWS</div>
           <div class="legend">
-            <span><i class="dot wiki"></i>Wiki</span>
-            <span><i class="dot source"></i>Source</span>
-            <span><i class="dot question"></i>Question</span>
-            <span><i class="dot contradiction"></i>Contradiction</span>
+            <span><i class="dot wiki"></i><em data-i18n="legend.wiki">Wiki</em></span>
+            <span><i class="dot source"></i><em data-i18n="legend.source">Source</em></span>
+            <span><i class="dot question"></i><em data-i18n="legend.question">Question</em></span>
+            <span><i class="dot contradiction"></i><em data-i18n="legend.contradiction">Contradiction</em></span>
           </div>
-          <div class="zoom-hint">拖曳移動 · 滾輪縮放 · 點擊節點閱讀</div>
+          <div class="zoom-hint" data-i18n="galaxy.hint">拖曳移動 · 滾輪縮放 · 點擊節點閱讀</div>
         </div>
 
 
@@ -88,37 +95,37 @@
           <div class="agent-os">
             <header class="agent-os-head">
               <div>
-                <div class="eyebrow">EXECUTION LAYER · WHAT ADAN DOES</div>
-                <h2>一個總指揮，七個專責工作區。</h2>
-                <p>Chief of Staff 先判斷意圖，再把任務交給最適合的 Agent；所有重要結果寫回 Obsidian Wiki。</p>
+                <div class="eyebrow" data-i18n="exec.eyebrow">EXECUTION LAYER · WHAT ADAN DOES</div>
+                <h2 data-i18n="exec.headline">一個總指揮，七個專責工作區。</h2>
+                <p data-i18n="exec.lede">Chief of Staff 先判斷意圖，再把任務交給最適合的 Agent；所有重要結果寫回 Obsidian Wiki。</p>
               </div>
               <div class="agent-summary">
-                <span><b id="agentActiveCount">3</b> Active</span>
-                <span><b id="agentQueueCount">4</b> Queue</span>
-                <span><b id="agentReviewCount">2</b> Review</span>
+                <span><b id="agentActiveCount">3</b> <em data-i18n="exec.active">Active</em></span>
+                <span><b id="agentQueueCount">4</b> <em data-i18n="exec.queue">Queue</em></span>
+                <span><b id="agentReviewCount">2</b> <em data-i18n="exec.review">Review</em></span>
               </div>
             </header>
 
             <section class="agent-map">
               <button class="agent-core active" data-agent-zone="chief">
                 <span class="core-pulse"></span>
-                <strong>Chief of Staff</strong>
-                <small>理解目標 · 拆解任務 · 協調 Agent</small>
+                <strong data-i18n="agent.chief">Chief of Staff</strong>
+                <small data-i18n="agent.chief.desc">理解目標 · 拆解任務 · 協調 Agent</small>
               </button>
               <div id="agentZones" class="agent-zones"></div>
             </section>
 
             <section class="execution-board">
               <div class="board-column">
-                <div class="board-title"><span>NOW</span><b>正在執行</b></div>
+                <div class="board-title"><span>NOW</span><b data-i18n="board.now">正在執行</b></div>
                 <div id="activeTasks" class="task-list"></div>
               </div>
               <div class="board-column">
-                <div class="board-title"><span>NEXT</span><b>等待排程</b></div>
+                <div class="board-title"><span>NEXT</span><b data-i18n="board.next">等待排程</b></div>
                 <div id="queuedTasks" class="task-list"></div>
               </div>
               <div class="board-column">
-                <div class="board-title"><span>REVIEW</span><b>等待你確認</b></div>
+                <div class="board-title"><span>REVIEW</span><b data-i18n="board.review">等待你確認</b></div>
                 <div id="reviewTasks" class="task-list"></div>
               </div>
             </section>
@@ -126,23 +133,23 @@
         </div>
         <div id="timelineView" class="view-container">
           <div class="empty-view">
-            <div class="eyebrow">COMPOUNDING OVER TIME</div>
-            <h2>知識不是被搜尋，而是被持續編譯。</h2>
+            <div class="eyebrow" data-i18n="timeline.eyebrow">COMPOUNDING OVER TIME</div>
+            <h2 data-i18n="timeline.headline">知識不是被搜尋，而是被持續編譯。</h2>
             <div id="timelineList" class="timeline-list"></div>
           </div>
         </div>
 
         <div id="healthView" class="view-container">
           <div class="health-grid">
-            <article class="metric-card"><span>Wiki pages</span><strong id="metricPages">0</strong><small>可持續維護的知識頁</small></article>
-            <article class="metric-card"><span>Connections</span><strong id="metricLinks">0</strong><small>已建立的雙向關聯</small></article>
-            <article class="metric-card warning"><span>Orphans</span><strong id="metricOrphans">0</strong><small>缺少連結的孤立頁面</small></article>
-            <article class="metric-card danger"><span>Contradictions</span><strong id="metricContradictions">0</strong><small>需要人工判讀的衝突</small></article>
+            <article class="metric-card"><span data-i18n="metric.pages">Wiki pages</span><strong id="metricPages">0</strong><small data-i18n="metric.pages.sub">可持續維護的知識頁</small></article>
+            <article class="metric-card"><span data-i18n="metric.links">Connections</span><strong id="metricLinks">0</strong><small data-i18n="metric.links.sub">已建立的雙向關聯</small></article>
+            <article class="metric-card warning"><span data-i18n="metric.orphans">Orphans</span><strong id="metricOrphans">0</strong><small data-i18n="metric.orphans.sub">缺少連結的孤立頁面</small></article>
+            <article class="metric-card danger"><span data-i18n="metric.contradictions">Contradictions</span><strong id="metricContradictions">0</strong><small data-i18n="metric.contradictions.sub">需要人工判讀的衝突</small></article>
           </div>
           <div class="health-detail panel-like">
             <div>
-              <div class="eyebrow">WIKI LINTER</div>
-              <h2>讓知識庫愈用愈好，而不是愈用愈亂。</h2>
+              <div class="eyebrow" data-i18n="health.eyebrow">WIKI LINTER</div>
+              <h2 data-i18n="health.headline">讓知識庫愈用愈好，而不是愈用愈亂。</h2>
             </div>
             <div id="lintResults" class="lint-results"></div>
           </div>
@@ -152,8 +159,8 @@
       <aside class="sidebar right-sidebar">
         <div id="inspectorEmpty" class="inspector-empty">
           <div class="orb">✦</div>
-          <h2>選擇一個節點</h2>
-          <p>閱讀頁面、查看來源、追蹤反向連結，或讓 Agent 把新洞見寫回 Obsidian。</p>
+          <h2 data-i18n="inspector.empty.title">選擇一個節點</h2>
+          <p data-i18n="inspector.empty.desc">閱讀頁面、查看來源、追蹤反向連結，或讓 Agent 把新洞見寫回 Obsidian。</p>
         </div>
 
         <div id="inspector" class="inspector hidden">
@@ -167,26 +174,26 @@
           <div id="nodeMeta" class="node-meta"></div>
           <div id="nodeBody" class="node-body"></div>
           <section class="inspector-section">
-            <h3>Connections</h3>
+            <h3 data-i18n="inspector.connections">Connections</h3>
             <div id="nodeLinks" class="chip-list"></div>
           </section>
           <section class="inspector-section">
-            <h3>Agent actions</h3>
+            <h3 data-i18n="inspector.actions">Agent actions</h3>
             <div class="agent-actions">
-              <button data-agent="synthesize">綜合成新頁面</button>
-              <button data-agent="expand">找缺口與下一步</button>
-              <button data-agent="cite">產生有來源的摘要</button>
+              <button data-agent="synthesize" data-i18n="action.synthesize">綜合成新頁面</button>
+              <button data-agent="expand" data-i18n="action.expand">找缺口與下一步</button>
+              <button data-agent="cite" data-i18n="action.cite">產生有來源的摘要</button>
             </div>
           </section>
-          <button id="openInObsidian" class="obsidian-btn">在 Obsidian 開啟</button>
+          <button id="openInObsidian" class="obsidian-btn" data-i18n="btn.obsidian">在 Obsidian 開啟</button>
         </div>
 
         <div class="ask-box">
-          <div class="ask-head"><span class="agent-dot"></span> Adan Chief of Staff <button id="agentRouteBadge" class="route-badge">Auto route</button></div>
-          <textarea id="agentPrompt" placeholder="交代任務：研究、工程、投資、專案或知識整理…"></textarea>
+          <div class="ask-head"><span class="agent-dot"></span> <em data-i18n="ask.title">Adan Chief of Staff</em> <button id="agentRouteBadge" class="route-badge" data-i18n="ask.route">Auto route</button></div>
+          <textarea id="agentPrompt" data-i18n-placeholder="ask.placeholder" placeholder="交代任務：研究、工程、投資、專案或知識整理…"></textarea>
           <div class="ask-footer">
-            <button id="saveAnswerToggle" class="toggle active" aria-pressed="true"><i></i>存回 Wiki</button>
-            <button id="askAgent" class="send-btn">送出 ↑</button>
+            <button id="saveAnswerToggle" class="toggle active" aria-pressed="true"><i></i><em data-i18n="ask.save">存回 Wiki</em></button>
+            <button id="askAgent" class="send-btn" data-i18n="ask.send">送出 ↑</button>
           </div>
         </div>
       </aside>
@@ -194,23 +201,23 @@
   </div>
 
   <dialog id="commandDialog" class="command-dialog">
-    <div class="command-search"><span>⌘</span><input id="commandInput" placeholder="輸入指令…" /></div>
+    <div class="command-search"><span>⌘</span><input id="commandInput" data-i18n-placeholder="command.placeholder" placeholder="輸入指令…" /></div>
     <div class="command-list">
-      <button data-command="connect"><span>連接 Obsidian Vault</span><kbd>V</kbd></button>
-      <button data-command="new"><span>建立 Wiki 頁面</span><kbd>N</kbd></button>
-      <button data-command="agents"><span>開啟 Agent Execution OS</span><kbd>A</kbd></button>
-      <button data-command="lint"><span>執行 Wiki Lint</span><kbd>L</kbd></button>
-      <button data-command="reset"><span>重設 Galaxy 視角</span><kbd>R</kbd></button>
+      <button data-command="connect"><span data-i18n="command.connect">連接 Obsidian Vault</span><kbd>V</kbd></button>
+      <button data-command="new"><span data-i18n="command.new">建立 Wiki 頁面</span><kbd>N</kbd></button>
+      <button data-command="agents"><span data-i18n="command.agents">開啟 Agent Execution OS</span><kbd>A</kbd></button>
+      <button data-command="lint"><span data-i18n="command.lint">執行 Wiki Lint</span><kbd>L</kbd></button>
+      <button data-command="reset"><span data-i18n="command.reset">重設 Galaxy 視角</span><kbd>R</kbd></button>
     </div>
   </dialog>
 
   <dialog id="pageDialog" class="page-dialog">
     <form method="dialog" id="pageForm">
-      <div class="dialog-head"><h2>建立 Wiki 頁面</h2><button value="cancel">×</button></div>
-      <label>標題<input id="pageTitleInput" required placeholder="例如：Persistent LLM Wiki" /></label>
-      <label>類型<select id="pageTypeInput"><option value="wiki">Wiki</option><option value="source">Raw source</option><option value="question">Question</option></select></label>
-      <label>內容<textarea id="pageBodyInput" placeholder="支援 [[雙向連結]] 與 Markdown"></textarea></label>
-      <div class="dialog-actions"><button value="cancel" class="ghost-btn">取消</button><button id="createPageSubmit" value="default" class="primary-btn">建立並寫入</button></div>
+      <div class="dialog-head"><h2 data-i18n="dialog.newpage">建立 Wiki 頁面</h2><button value="cancel">×</button></div>
+      <label><em data-i18n="dialog.title">標題</em><input id="pageTitleInput" required data-i18n-placeholder="dialog.title.ph" placeholder="例如：Persistent LLM Wiki" /></label>
+      <label><em data-i18n="dialog.type">類型</em><select id="pageTypeInput"><option value="wiki" data-i18n="dialog.type.wiki">Wiki</option><option value="source" data-i18n="dialog.type.source">Raw source</option><option value="question" data-i18n="dialog.type.question">Question</option></select></label>
+      <label><em data-i18n="dialog.body">內容</em><textarea id="pageBodyInput" data-i18n-placeholder="dialog.body.ph" placeholder="支援 [[雙向連結]] 與 Markdown"></textarea></label>
+      <div class="dialog-actions"><button value="cancel" class="ghost-btn" data-i18n="dialog.cancel">取消</button><button id="createPageSubmit" value="default" class="primary-btn" data-i18n="dialog.create">建立並寫入</button></div>
     </form>
   </dialog>
 
