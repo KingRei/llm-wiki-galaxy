@@ -14,9 +14,9 @@
   <div id="app">
     <header class="topbar">
       <div class="brand">
-        <div class="brand-mark">∞</div>
+        <img class="brand-mark" src="assets/brand-mark.svg" width="38" height="38" alt="Noah Second Brain" />
         <div>
-          <div class="brand-title">Adan Second Brain</div>
+          <div class="brand-title">Noah Second Brain</div>
           <div class="brand-subtitle" data-i18n="brand.subtitle">Knowledge Memory × Agent Execution OS</div>
         </div>
       </div>
@@ -80,7 +80,7 @@
 
         <div id="galaxyView" class="view-container active">
           <canvas id="galaxyCanvas"></canvas>
-          <div class="galaxy-label" data-i18n="galaxy.label">KNOWLEDGE MEMORY · WHAT ADAN KNOWS</div>
+          <div class="galaxy-label" data-i18n="galaxy.label">KNOWLEDGE MEMORY · WHAT NOAH KNOWS</div>
           <div class="legend">
             <span><i class="dot wiki"></i><em data-i18n="legend.wiki">Wiki</em></span>
             <span><i class="dot source"></i><em data-i18n="legend.source">Source</em></span>
@@ -95,7 +95,7 @@
           <div class="agent-os">
             <header class="agent-os-head">
               <div>
-                <div class="eyebrow" data-i18n="exec.eyebrow">EXECUTION LAYER · WHAT ADAN DOES</div>
+                <div class="eyebrow" data-i18n="exec.eyebrow">EXECUTION LAYER · WHAT NOAH DOES</div>
                 <h2 data-i18n="exec.headline">一個總指揮，七個專責工作區。</h2>
                 <p data-i18n="exec.lede">Chief of Staff 先判斷意圖，再把任務交給最適合的 Agent；所有重要結果寫回 Obsidian Wiki。</p>
               </div>
@@ -189,7 +189,7 @@
         </div>
 
         <div class="ask-box">
-          <div class="ask-head"><span class="agent-dot"></span> <em data-i18n="ask.title">Adan Chief of Staff</em> <button id="agentRouteBadge" class="route-badge" data-i18n="ask.route">Auto route</button></div>
+          <div class="ask-head"><span class="agent-dot"></span> <em data-i18n="ask.title">Noah Chief of Staff</em> <button id="agentRouteBadge" class="route-badge" data-i18n="ask.route">Auto route</button></div>
           <textarea id="agentPrompt" data-i18n-placeholder="ask.placeholder" placeholder="交代任務：研究、工程、投資、專案或知識整理…"></textarea>
           <div class="ask-footer">
             <button id="saveAnswerToggle" class="toggle active" aria-pressed="true"><i></i><em data-i18n="ask.save">存回 Wiki</em></button>
@@ -213,11 +213,11 @@
 
   <dialog id="pageDialog" class="page-dialog">
     <form method="dialog" id="pageForm">
-      <div class="dialog-head"><h2 data-i18n="dialog.newpage">建立 Wiki 頁面</h2><button value="cancel">×</button></div>
+      <div class="dialog-head"><h2 data-i18n="dialog.newpage">建立 Wiki 頁面</h2><button type="button" class="dialog-close" data-close-page aria-label="Close">×</button></div>
       <label><em data-i18n="dialog.title">標題</em><input id="pageTitleInput" required data-i18n-placeholder="dialog.title.ph" placeholder="例如：Persistent LLM Wiki" /></label>
       <label><em data-i18n="dialog.type">類型</em><select id="pageTypeInput"><option value="wiki" data-i18n="dialog.type.wiki">Wiki</option><option value="source" data-i18n="dialog.type.source">Raw source</option><option value="question" data-i18n="dialog.type.question">Question</option></select></label>
       <label><em data-i18n="dialog.body">內容</em><textarea id="pageBodyInput" data-i18n-placeholder="dialog.body.ph" placeholder="支援 [[雙向連結]] 與 Markdown"></textarea></label>
-      <div class="dialog-actions"><button value="cancel" class="ghost-btn" data-i18n="dialog.cancel">取消</button><button id="createPageSubmit" value="default" class="primary-btn" data-i18n="dialog.create">建立並寫入</button></div>
+      <div class="dialog-actions"><button type="button" class="ghost-btn" data-close-page data-i18n="dialog.cancel">取消</button><button id="createPageSubmit" value="default" class="primary-btn" data-i18n="dialog.create">建立並寫入</button></div>
     </form>
   </dialog>
 

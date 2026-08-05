@@ -23,13 +23,13 @@ const I18N = {
     'tip.focus':'聚焦所選節點',
     'tip.reset':'重設視角',
     'tip.lint':'執行 Wiki Lint',
-    'galaxy.label':'知識記憶 · ADAN 知道什麼',
+    'galaxy.label':'知識記憶 · NOAH 知道什麼',
     'legend.wiki':'Wiki',
     'legend.source':'來源',
     'legend.question':'問題',
     'legend.contradiction':'矛盾',
     'galaxy.hint':'拖曳移動 · 滾輪縮放 · 點擊節點閱讀',
-    'exec.eyebrow':'執行層 · ADAN 會做什麼',
+    'exec.eyebrow':'執行層 · NOAH 會做什麼',
     'exec.headline':'一個總指揮，七個專責工作區。',
     'exec.lede':'Chief of Staff 先判斷意圖，再把任務交給最適合的 Agent；所有重要結果寫回 Obsidian Wiki。',
     'exec.active':'執行中',
@@ -61,7 +61,7 @@ const I18N = {
     'action.expand':'找缺口與下一步',
     'action.cite':'產生有來源的摘要',
     'btn.obsidian':'在 Obsidian 開啟',
-    'ask.title':'Adan Chief of Staff',
+    'ask.title':'Noah Chief of Staff',
     'ask.route':'自動路由',
     'ask.placeholder':'交代任務：研究、工程、投資、專案或知識整理…',
     'ask.save':'存回 Wiki',
@@ -168,13 +168,13 @@ const I18N = {
     'tip.focus':'Focus selected',
     'tip.reset':'Reset view',
     'tip.lint':'Lint wiki',
-    'galaxy.label':'KNOWLEDGE MEMORY · WHAT ADAN KNOWS',
+    'galaxy.label':'KNOWLEDGE MEMORY · WHAT NOAH KNOWS',
     'legend.wiki':'Wiki',
     'legend.source':'Source',
     'legend.question':'Question',
     'legend.contradiction':'Contradiction',
     'galaxy.hint':'Drag to pan · scroll to zoom · click a node to read',
-    'exec.eyebrow':'EXECUTION LAYER · WHAT ADAN DOES',
+    'exec.eyebrow':'EXECUTION LAYER · WHAT NOAH DOES',
     'exec.headline':'One chief of staff, seven dedicated workspaces.',
     'exec.lede':'The Chief of Staff reads your intent first, then hands the task to the right agent — and every meaningful result is written back into the Obsidian wiki.',
     'exec.active':'Active',
@@ -206,7 +206,7 @@ const I18N = {
     'action.expand':'Find gaps and next steps',
     'action.cite':'Generate a cited summary',
     'btn.obsidian':'Open in Obsidian',
-    'ask.title':'Adan Chief of Staff',
+    'ask.title':'Noah Chief of Staff',
     'ask.route':'Auto route',
     'ask.placeholder':'Give a task: research, engineering, investment, projects or knowledge upkeep…',
     'ask.save':'Save to wiki',
@@ -310,9 +310,10 @@ const PAGE_BODY_EN = {
   'agent-question':'After each ingest the agent should answer: which existing conclusions were reinforced, weakened or overturned? What evidence is still missing?'
 };
 
-const LANG_KEY='adan.lang';
+const LANG_KEY='noah.lang';
+const LEGACY_LANG_KEY='adan.lang';
 function detectLang(){
-  try{const saved=localStorage.getItem(LANG_KEY);if(saved==='zh'||saved==='en')return saved}catch(e){}
+  try{const saved=localStorage.getItem(LANG_KEY)||localStorage.getItem(LEGACY_LANG_KEY);if(saved==='zh'||saved==='en')return saved}catch(e){}
   const list=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'en']);
   return list.some(l=>/^zh/i.test(l||''))?'zh':'en';
 }
@@ -423,7 +424,11 @@ function updateUI(){
   $('#metricOrphans').textContent=[...degrees.values()].filter(v=>v===0).length;$('#metricContradictions').textContent=state.pages.filter(p=>p.type==='contradiction').length;
   renderActivity();renderTimeline();renderLint(degrees);
 }
-function renderActivity(){const list=[...state.pages].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7);$('#activityList').innerHTML=list.map(p=>`<div class="activity-item"><i style="color:${typeColors[p.type]};background:${typeColors[p.type]}"></i><div><strong>${escapeHtml(p.title)}</strong><small>${p.date} · ${escapeHtml(t('type.'+p.type))}</small></div></div>`).join('')}
+function renderActivity(){
+  const list=[...state.pages].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
+  $('#activityList').innerHTML=list.map(p=>`<button class="activity-item" data-page-id="${escapeHtml(p.id)}" style="--c:${typeColors[p.type]}" title="${escapeHtml(p.title)}"><i></i><span class="act-body"><strong>${escapeHtml(p.title)}</strong><small><em class="act-type">${escapeHtml(t('type.'+p.type))}</em><time>${p.date}</time></small></span></button>`).join('');
+  $$('#activityList .activity-item').forEach(b=>b.onclick=()=>{const target=state.pages.find(x=>x.id===b.dataset.pageId);if(target)selectPage(target)});
+}
 function renderTimeline(){const list=[...state.pages].sort((a,b)=>b.date.localeCompare(a.date));$('#timelineList').innerHTML=list.map(p=>{const b=pageBody(p);return `<div class="timeline-item"><time>${p.date}</time><div class="timeline-line"></div><div><strong>${escapeHtml(p.title)}</strong><p>${escapeHtml(b.slice(0,90))}${b.length>90?'…':''}</p></div></div>`}).join('')}
 function renderLint(degrees){const orphan=[...degrees].filter(([,v])=>v===0).map(([id])=>state.pages.find(p=>p.id===id)?.title).filter(Boolean);const missing=[];const titles=new Set(state.pages.map(p=>p.title.toLowerCase()));state.pages.forEach(p=>(p.links||[]).forEach(l=>{if(!titles.has(l.toLowerCase()))missing.push(l)}));const sep=LANG==='zh'?'、':', ';const none=t('lint.none');const rows=[[t('lint.orphans'),orphan.length?orphan.join(sep):none],[t('lint.broken'),[...new Set(missing)].slice(0,6).join(sep)||none],[t('lint.contradictions'),state.pages.filter(p=>p.type==='contradiction').map(p=>p.title).join(sep)||none],[t('lint.nosource'),t('lint.nosource.value',{n:state.pages.filter(p=>p.type==='wiki'&&!p.source).length})]];$('#lintResults').innerHTML=rows.map(r=>`<div class="lint-row"><span>${r[0]}</span><b>${escapeHtml(r[1])}</b></div>`).join('')}
 
@@ -437,14 +442,14 @@ function draw(){resize();const r=canvas.getBoundingClientRect();ctx.clearRect(0,
   state.pages.forEach(p=>{if(p.hidden)return;const s=worldToScreen(p),selected=p===state.selected,hover=p===state.hover;const rr=(p.r+(selected?3:hover?1.5:0))*Math.min(state.camera.scale,1.7);const grd=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,rr*5);grd.addColorStop(0,typeColors[p.type]+'cc');grd.addColorStop(.18,typeColors[p.type]+'66');grd.addColorStop(1,typeColors[p.type]+'00');ctx.fillStyle=grd;ctx.beginPath();ctx.arc(s.x,s.y,rr*5,0,Math.PI*2);ctx.fill();ctx.fillStyle=typeColors[p.type];ctx.beginPath();ctx.arc(s.x,s.y,Math.max(1.7,rr),0,Math.PI*2);ctx.fill();if(selected||hover||state.camera.scale>1.6){ctx.globalCompositeOperation='source-over';ctx.fillStyle=selected?'#f3fdff':'#9ec8d8';ctx.font=`${selected?12:10}px system-ui`;ctx.fillText(p.title,s.x+rr+5,s.y+3);ctx.globalCompositeOperation='lighter'}});ctx.restore();requestAnimationFrame(draw)}
 function hitTest(x,y){let best=null,bd=14;state.filtered.forEach(p=>{const s=worldToScreen(p),d=Math.hypot(s.x-x,s.y-y);if(d<bd){best=p;bd=d}});return best}
 
-function selectPage(p){state.selected=p;$('#inspectorEmpty').classList.add('hidden');$('#inspector').classList.remove('hidden');$('.right-sidebar').classList.add('open');$('#nodeType').textContent=t('type.'+p.type);$('#nodeTitle').textContent=p.title;$('#nodeMeta').textContent=`${p.date||'—'} · ${(p.tags||[]).map(t=>'#'+t).join(' ')}`;$('#nodeBody').textContent=pageBody(p);$('#nodeLinks').innerHTML=(p.links||[]).map(l=>`<button class="chip" data-title="${escapeHtml(l)}">[[${escapeHtml(l)}]]</button>`).join('')||`<span class="chip">${escapeHtml(t('inspector.nolinks'))}</span>`;$$('#nodeLinks .chip[data-title]').forEach(b=>b.onclick=()=>{const target=state.pages.find(p=>p.title===b.dataset.title);if(target)selectPage(target)});}
+function selectPage(p){state.selected=p;$$('#activityList .activity-item').forEach(b=>b.classList.toggle('active',b.dataset.pageId===p.id));$('#inspectorEmpty').classList.add('hidden');$('#inspector').classList.remove('hidden');$('.right-sidebar').classList.add('open');$('#nodeType').textContent=t('type.'+p.type);$('#nodeTitle').textContent=p.title;$('#nodeMeta').textContent=`${p.date||'—'} · ${(p.tags||[]).map(t=>'#'+t).join(' ')}`;$('#nodeBody').textContent=pageBody(p);$('#nodeLinks').innerHTML=(p.links||[]).map(l=>`<button class="chip" data-title="${escapeHtml(l)}">[[${escapeHtml(l)}]]</button>`).join('')||`<span class="chip">${escapeHtml(t('inspector.nolinks'))}</span>`;$$('#nodeLinks .chip[data-title]').forEach(b=>b.onclick=()=>{const target=state.pages.find(p=>p.title===b.dataset.title);if(target)selectPage(target)});}
 
 async function connectVault(){
   if(!window.showDirectoryPicker){toast(t('toast.nofs'));return}
   try{const handle=await window.showDirectoryPicker({mode:'readwrite'});state.vaultHandle=handle;state.handles.clear();const pages=[];await walk(handle,'',pages);if(!pages.length){toast(t('toast.nomd'));return}state.pages=pages;$('#vaultStatus').removeAttribute('data-i18n');$('#vaultStatus').textContent=handle.name;$('#vaultStatus').style.color='var(--cyan)';buildGraph();updateUI();toast(t('toast.connected',{name:handle.name,n:pages.length}))}catch(e){if(e.name!=='AbortError'){console.error(e);toast(t('toast.connectfail')+e.message)}}
 }
 async function walk(dir,path,out){for await(const [name,h] of dir.entries()){if(name.startsWith('.')||name==='.obsidian')continue;const p=path?`${path}/${name}`:name;if(h.kind==='directory')await walk(h,p,out);else if(name.toLowerCase().endsWith('.md')){const file=await h.getFile(),text=await file.text(),fm=parseFrontmatter(text),title=(fm.title||name.replace(/\.md$/i,''));const type=['wiki','source','question','contradiction'].includes(fm.type)?fm.type:(p.startsWith('raw/')?'source':'wiki');const page={id:slugify(p),title,type,date:fm.updated||fm.date||new Date(file.lastModified).toISOString().slice(0,10),tags:Array.isArray(fm.tags)?fm.tags:[],body:stripFrontmatter(text).slice(0,5000),links:wikiLinks(text),path:p,handle:h,x:0,y:0,vx:0,vy:0,r:type==='wiki'?4.4:3.7};out.push(page);state.handles.set(page.id,h)}}}
-async function createPage(){const title=$('#pageTitleInput').value.trim(),type=$('#pageTypeInput').value,body=$('#pageBodyInput').value.trim();if(!title)return;const page={id:slugify(title+'-'+Date.now()),title,type,date:new Date().toISOString().slice(0,10),tags:[],body,links:wikiLinks(body),x:(Math.random()-.5)*160,y:(Math.random()-.5)*160,vx:0,vy:0,r:type==='wiki'?4.4:3.7};if(state.vaultHandle){try{let wikiDir;try{wikiDir=await state.vaultHandle.getDirectoryHandle(type==='source'?'raw':'wiki',{create:true})}catch{wikiDir=state.vaultHandle}const h=await wikiDir.getFileHandle(`${title.replace(/[\\/:*?"<>|]/g,'-')}.md`,{create:true});const w=await h.createWritable();const md=`---\ntitle: "${title.replace(/"/g,'\\"')}"\ntype: ${type}\ndate: ${page.date}\ntags: []\n---\n\n# ${title}\n\n${body}\n`;await w.write(md);await w.close();page.handle=h;page.path=`${type==='source'?'raw':'wiki'}/${title}.md`;toast(t('toast.written'))}catch(e){console.error(e);toast(t('toast.writefail'))}}state.pages.push(page);buildGraph();updateUI();selectPage(page);$('#pageDialog').close();$('#pageForm').reset()}
+async function createPage(){const titleEl=$('#pageTitleInput');if(!titleEl.value.trim()){titleEl.reportValidity();return}const title=$('#pageTitleInput').value.trim(),type=$('#pageTypeInput').value,body=$('#pageBodyInput').value.trim();if(!title)return;const page={id:slugify(title+'-'+Date.now()),title,type,date:new Date().toISOString().slice(0,10),tags:[],body,links:wikiLinks(body),x:(Math.random()-.5)*160,y:(Math.random()-.5)*160,vx:0,vy:0,r:type==='wiki'?4.4:3.7};if(state.vaultHandle){try{let wikiDir;try{wikiDir=await state.vaultHandle.getDirectoryHandle(type==='source'?'raw':'wiki',{create:true})}catch{wikiDir=state.vaultHandle}const h=await wikiDir.getFileHandle(`${title.replace(/[\\/:*?"<>|]/g,'-')}.md`,{create:true});const w=await h.createWritable();const md=`---\ntitle: "${title.replace(/"/g,'\\"')}"\ntype: ${type}\ndate: ${page.date}\ntags: []\n---\n\n# ${title}\n\n${body}\n`;await w.write(md);await w.close();page.handle=h;page.path=`${type==='source'?'raw':'wiki'}/${title}.md`;toast(t('toast.written'))}catch(e){console.error(e);toast(t('toast.writefail'))}}state.pages.push(page);buildGraph();updateUI();selectPage(page);$('#pageDialog').close();$('#pageForm').reset()}
 function openObsidian(){if(!state.selected)return;const vault=state.vaultHandle?.name||'';const file=(state.selected.path||state.selected.title).replace(/\.md$/,'');const uri=`obsidian://open?vault=${encodeURIComponent(vault)}&file=${encodeURIComponent(file)}`;location.href=uri}
 function runLint(){switchView('health');toast(t('toast.lintdone'))}
 function switchView(v){state.view=v;$$('.view-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));$$('.view-container').forEach(el=>el.classList.remove('active'));$('#'+v+'View').classList.add('active')}
@@ -474,6 +479,7 @@ function routeAgent(prompt=''){
 }
 function bind(){
   $$('#langSwitch button').forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+  $$('[data-close-page]').forEach(b=>b.onclick=()=>{$('#pageDialog').close();$('#pageForm').reset()});
   addEventListener('resize',resize);$('#connectVault').onclick=connectVault;$('#newPage').onclick=()=>$('#pageDialog').showModal();$('#createPageSubmit').onclick=e=>{e.preventDefault();createPage()};$('#searchInput').oninput=updateUI;$('#searchInput').onkeydown=e=>{if(e.key==='Escape'){e.target.value='';updateUI()}};
   $$('.layer').forEach(b=>b.onclick=()=>{state.layer=b.dataset.layer;$$('.layer').forEach(x=>x.classList.toggle('active',x===b));updateUI()});$$('.view-btn').forEach(b=>b.onclick=()=>switchView(b.dataset.view));$('#runLint').onclick=runLint;$('#closeInspector').onclick=()=>{$('#inspector').classList.add('hidden');$('#inspectorEmpty').classList.remove('hidden');$('.right-sidebar').classList.remove('open');state.selected=null};$('#openInObsidian').onclick=openObsidian;
   $('#resetView').onclick=()=>state.camera={x:0,y:0,scale:1};$('#focusMode').onclick=()=>{if(state.selected){state.camera.x=-state.selected.x;state.camera.y=-state.selected.y;state.camera.scale=2.2}};

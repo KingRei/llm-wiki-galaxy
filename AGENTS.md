@@ -75,7 +75,7 @@ Do not auto-resolve substantive contradictions without evidence or user review.
 
 ## Execution Layer routing
 
-Adan uses a Chief of Staff orchestrator and seven expandable workspaces:
+Noah uses a Chief of Staff orchestrator and seven expandable workspaces:
 
 1. Research — sources, papers, web pages, repositories.
 2. Engineering — code, bugs, benchmarks, environments.

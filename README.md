@@ -77,7 +77,7 @@ Agent sidecar (Python or Node)
 - Safari / iOS 無法提供同等的 Vault 資料夾讀寫體驗。
 - 跨裝置正式版可改用 Obsidian Local REST API plugin、桌面 companion app，或自架同步服務。
 
-## Execution Layer（Adan Agent OS）
+## Execution Layer（Noah Agent OS）
 
 新版加入 Knowledge / Execution 雙層模式：
 
